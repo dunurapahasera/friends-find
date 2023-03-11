@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>University and Course Selection</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+  <div class="container-fluid mt-5">
+    <h1>University and Course Selection</h1>
+    <form method="POST" id="form">
+      <div class="form-group">
+        <label for="university">Select University:</label>
+        <select class="form-control" id="university" name="university">
+          <option value="">--Select University--</option>
+          <option value="EASTERN UNIVERSITY">Eastern University</option>
+          <option value="GAMPAHA WICKRAMARACHCHI UNI.">Gampaha Wickramarachchi University</option>
+          <option value="RAJARATA UNIVERSITY">Rajarata University</option>
+          <option value="SABARAGAMUWA UNIVERSITY">Sabaragamuwa University</option>
+          <option value="SOUTH EASTERN UNIVERSITY">South Eastern University</option>
+          <option value="SRIPALEE CAMPUS">Sripalee Campus</option>
+          <option value="TRINCOMALEE CAMPUS">Trincomalee Campus</option>
+          <option value="UNIVERSITY OF COLOMBO">University of Colombo</option>
+          <option value="UNIVERSITY OF COLOMBO SCHOOL OF COMPUTING">University of Colombo School of Computing</option>
+          <option value="UNIVERSITY OF JAFFNA">University of Jaffna</option>
+          <option value="UNIVERSITY OF KELANIYA">University of Kelaniya</option>
+          <option value="UNIVERSITY OF MORATUWA">University of Moratuwa</option>
+          <option value="UNIVERSITY OF PERADENIYA">University of Peradeniya</option>
+          <option value="UNIVERSITY OF RUHUNA">University of Ruhuna</option>
+          <option value="UNIVERSITY OF SRI JAYEWARDENEPURA">University of Sri Jayewardenepura</option>
+          <option value="UNIVERSITY OF THE VISUAL & PERFORMING ARTS">University of the Visual &amp; Performing Arts
+          </option>
+          <option value="UNIVERSITY OF VAVUNIYA">University of Vavuniya</option>
+          <option value="UVA WELLASSA UNIVERS">Uva Wellassa University</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="course">Select Course:</label>
+        <select class="form-control" id="course" name="course" disabled>
+          <option value="">--Select Course--</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Submit</button>
+    </form>
+    <div class="table-responsive mt-5" id="resultTable">
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>University</th>
+            <th>Course</th>
+          </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#university").on("change", function () {
+        var university = $(this).val();
+        if (university != "") {
+          $.ajax({
+            url: "backend.php",
+            type: "POST",
+            data: { university: university },
+            dataType: "json",
+            success: function (data) {
+              $("#course").empty();
+              $("#course").append('<option value="">--Select Course--</option>');
+              $.each(data, function (key, value) {
+                $("#course").append('<option value="' + value.course + '">' + value.course + '</option>');
+              });
+              $("#course").prop("disabled", false);
+              $("#submitBtn").prop("disabled", true);
+            }
+          });
+        }
+        else {
+          $("#course").empty();
+          $("#course").prop("disabled", true);
+          $("#submitBtn").prop("disabled", true);
+        }
+      });
+
+      $("#course").on("change", function () {
+        var course = $(this).val();
+        if (course != "") {
+          $("#submitBtn").prop("disabled", false);
+        }
+        else {
+          $("#submitBtn").prop("disabled", true);
+        }
+      });
+
+      $("#form").on("submit", function (event) {
+        event.preventDefault();
+
+        var university = $("#university").val();
+        var course = $("#course").val();
+        $.ajax({
+          url: "backend.php",
+          type: "POST",
+          data: { university: university, course: course },
+          dataType: "json",
+          success: function (data) {
+            var html = "";
+            $.each(data, function (key, value) {
+              html += "<tr>";
+              html += "<td>" + value.name + "</td>";
+              html += "<td>" + value.university + "</td>";
+              html += "<td>" + value.course + "</td>";
+              html += "</tr>";
+            });
+            $("#resultTable tbody").html(html);
+          }
+        });
+      });
+    });
+  </script>
+
+</body>
+
+</html>
